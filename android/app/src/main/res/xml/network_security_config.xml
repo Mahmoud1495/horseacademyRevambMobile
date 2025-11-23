@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+
+    <!-- Allow HTTPS access to your production domain (custom port 50270) -->
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">stingrayltd.com</domain>
+        <domain includeSubdomains="true">apps.stingrayltd.com</domain>
+        <domain includeSubdomains="true">apps.stingrayltd.com:50270</domain>
+
+        <!-- Trust system and user-installed certificates -->
+        <trust-anchors>
+            <certificates src="system" />
+            <certificates src="user" />
+        </trust-anchors>
+    </domain-config>
+
+    <!-- Allow localhost for emulator -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">localhost</domain>
+        <domain includeSubdomains="false">127.0.0.1</domain>
+    </domain-config>
+
+</network-security-config>
