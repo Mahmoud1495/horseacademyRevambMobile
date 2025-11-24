@@ -6,6 +6,7 @@ class AuthRepo {
   final _api = ApiClient();
   final _storage = FlutterSecureStorage();
 
+
   // Login returns a full UserModel
   Future<UserModel> login(String email, String password) async {
     final response = await _api.dio.post(

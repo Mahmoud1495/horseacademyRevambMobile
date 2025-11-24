@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:horseacademy/presentation/splash/splash_screen.dart';
 import 'presentation/auth/login_screen.dart';
-
 void main() async {
   // Ensure Flutter bindings are initialized before using any platform channels
   WidgetsFlutterBinding.ensureInitialized();
@@ -10,20 +10,19 @@ void main() async {
   runApp(MyApp());
 }
 
+
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-
-   
-      // Default screen when app starts
-      home: LoginScreen(),
-
-      // Add named routes
+      home: SplashScreen(),
       routes: {
         '/login': (context) => LoginScreen(),
       },
     );
   }
 }
+
