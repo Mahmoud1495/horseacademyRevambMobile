@@ -21,7 +21,7 @@ class DashboardScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("$title - ${user.name}"),
+        title: Text("$title - ${user.nameEn}"),
         actions: [
           IconButton(
             icon: Icon(Icons.logout),

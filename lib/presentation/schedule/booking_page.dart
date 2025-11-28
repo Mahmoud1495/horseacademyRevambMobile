@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 class BookingPage extends StatefulWidget {
   final String time;
   final String coach;
-  final int price;
-  final int serviceId;
+  final double price;
+  final String serviceId;
   final String image; // new image field
 
   const BookingPage({
@@ -41,7 +41,7 @@ class _BookingPageState extends State<BookingPage> {
 
   @override
   Widget build(BuildContext context) {
-    final int totalPrice = widget.price * usersCount;
+    final double totalPrice = widget.price * usersCount;
 
     return Scaffold(
       appBar: AppBar(title: const Text("Confirm Reservation")),
@@ -188,7 +188,7 @@ class _BookingPageState extends State<BookingPage> {
   // ==========================
   // Total Price Display
   // ==========================
-  Widget _buildTotalPrice(int totalPrice) {
+  Widget _buildTotalPrice(double totalPrice) {
     return Text(
       "Total: $totalPrice EGP",
       style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),

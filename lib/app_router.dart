@@ -9,20 +9,20 @@ class AppRouter {
     Navigator.pushNamedAndRemoveUntil(context, '/login', (_) => false);
   }
   static goToHome(BuildContext context, UserModel user) {
-    switch (user.role) {
-      case 'admin':
+    switch (user.type) {
+      case 3:
       Navigator.pushReplacement(
     context,
     MaterialPageRoute(builder: (_) => AdminHome(user: user))); 
         //Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => AdminHome(user: user)));
         break;
-      case 'trainee':
+      case 2:
       Navigator.pushReplacement(
     context,
     MaterialPageRoute(builder: (_) => TraineeHome(user: user))); 
         //Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => TraineeHome(user: user)));
         break;
-      case 'captain':
+      case 1:
       Navigator.pushReplacement(
     context,
     MaterialPageRoute(builder: (_) => CaptainHome(user: user))); 

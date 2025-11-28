@@ -6,6 +6,8 @@ import '../../app_router.dart';
 import '../auth/login_screen.dart';
 
 class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
+
   @override
   State<SplashScreen> createState() => _SplashScreenState();
 }
@@ -32,7 +34,6 @@ class _SplashScreenState extends State<SplashScreen> {
           AppRouter.goToHome(context, user);
           return;
         } else {
-          // Expired token
           await storage.delete(key: "user");
         }
       } catch (e) {
@@ -63,18 +64,49 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+
     return Scaffold(
-      body: Container(
-        color: Colors.blue,
-        alignment: Alignment.center,
+      backgroundColor: Colors.white,
+      body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          children: const [
-            FlutterLogo(size: 100),
-            SizedBox(height: 20),
+          children: [
+            // Logo - same style as login page
+            Container(
+              height: size.height * 0.18,
+              width: size.height * 0.18,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+                image: const DecorationImage(
+                  image: AssetImage('lib/assets/Logo.jpg'), // same as login
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            SizedBox(height: size.height * 0.04),
+
+            // App title
             Text(
-              "Welcome to My App",
-              style: TextStyle(color: Colors.white, fontSize: 24),
+              "Horse Academy",
+              style: TextStyle(
+                fontSize: size.height * 0.035,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
+            SizedBox(height: size.height * 0.02),
+
+            // Loading indicator
+            const CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation(Colors.black87),
             ),
           ],
         ),

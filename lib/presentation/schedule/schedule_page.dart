@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:horseacademy/core/app_config.dart';
+import 'package:horseacademy/data/models/bundle_model.dart';
+import 'package:horseacademy/data/repo/bundle_repo.dart';
 import 'package:horseacademy/presentation/schedule/booking_page.dart';
 
 class SchedulePage extends StatefulWidget {
-  final int serviceId;
+  final String serviceId;
   final String title;
 
   const SchedulePage({
@@ -17,59 +20,50 @@ class SchedulePage extends StatefulWidget {
 
 class _SchedulePageState extends State<SchedulePage> {
   DateTime selectedDay = DateTime.now();
+  List<Bundle> bundles = [];
+  bool isLoading = true;
 
-  // Fake static data BEFORE API implementation
-  final List<Map<String, dynamic>> sampleSlots = [
-    {
-      "id": 1,
-      "time": "09:00 AM",
-      "coach": "Coach Ahmed",
-      "status": "available",
-      "price": 100,
-      "image": "https://picsum.photos/200?1"
-    },
-    {
-      "id": 2,
-      "time": "11:00 AM",
-      "coach": "Coach Sarah",
-      "status": "completed",
-      "price": 100,
-      "image": "https://picsum.photos/200?2"
-    },
-    {
-      "id": 3,
-      "time": "01:00 PM",
-      "coach": "Coach Ali",
-      "status": "closed",
-      "price": 100,
-      "image": "https://picsum.photos/200?3"
-    },
-  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadBundles();
+  }
+
+  Future<void> _loadBundles() async {
+    try {
+      final _bundleRepo = BundleRepo();
+      final list = await _bundleRepo.getTraineeBundles(widget.serviceId);
+      setState(() {
+        bundles = list;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() => isLoading = false);
+      // Handle error (snackbar, toast, etc.)
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-
-      body: Column(
-        children: [
-          const SizedBox(height: 10),
-
-          _buildCalendar(),
-
-          const SizedBox(height: 20),
-
-          Expanded(
-            child: ListView(
+      appBar: AppBar(title: Text(widget.title)),
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Column(
               children: [
-                for (var slot in sampleSlots) _buildTimeslot(slot),
+                const SizedBox(height: 10),
+                _buildCalendar(),
+                const SizedBox(height: 20),
+                Expanded(
+                  child: ListView(
+                    children: bundles
+                        .map((bundle) => _buildTimeslot(bundle))
+                        .toList(),
+                  ),
+                ),
               ],
             ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -102,10 +96,10 @@ class _SchedulePageState extends State<SchedulePage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][day.weekday % 7],
+                    ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+                        [day.weekday % 7],
                     style: TextStyle(
-                      color: isActive ? Colors.white : Colors.black,
-                    ),
+                        color: isActive ? Colors.white : Colors.black),
                   ),
                   const SizedBox(height: 6),
                   Text(
@@ -128,14 +122,11 @@ class _SchedulePageState extends State<SchedulePage> {
   // --------------------------------------------------------------------------
   // TIMESLOT UI
   // --------------------------------------------------------------------------
-  Widget _buildTimeslot(Map slot) {
-    final status = slot["status"];
-    final bool available = status == "available";
-
-    Color statusColor =
-        available ? Colors.green :
-        status == "completed" ? Colors.blue :
-        Colors.red;
+  Widget _buildTimeslot(Bundle bundle) {
+    // Determine status based on remaining sessions or other logic
+    bool available = bundle.numberClasses > 0; // example condition
+    Color statusColor = available ? Colors.green : Colors.red;
+    String statusText = available ? "Available" : "Closed";
 
     return InkWell(
       onTap: available
@@ -144,11 +135,11 @@ class _SchedulePageState extends State<SchedulePage> {
                 context,
                 MaterialPageRoute(
                   builder: (_) => BookingPage(
-                    serviceId: slot["id"],
-                    coach: slot["coach"],
-                    time: slot["time"],
-                    price: slot["price"],
-                    image: slot["image"],
+                    serviceId: bundle.id,
+                    coach: "N/A", // replace if you have coach info
+                    time: "${bundle.bundleDuration} days",
+                    price: bundle.bundlePrice,
+                    image: bundle.photo,
                   ),
                 ),
               );
@@ -158,11 +149,11 @@ class _SchedulePageState extends State<SchedulePage> {
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: ListTile(
           leading: CircleAvatar(
-            backgroundImage: NetworkImage(slot["image"]),
+            backgroundImage: NetworkImage(AppConfig.baseSTaticUrl + bundle.photo),
             radius: 28,
           ),
-          title: Text(slot["time"]),
-          subtitle: Text(slot["coach"]),
+          title: Text(bundle.name),
+          subtitle: Text("Classes: ${bundle.numberClasses}"),
           trailing: Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
@@ -170,7 +161,7 @@ class _SchedulePageState extends State<SchedulePage> {
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
-              status,
+              statusText,
               style: TextStyle(
                 color: statusColor,
                 fontWeight: FontWeight.bold,
@@ -182,4 +173,3 @@ class _SchedulePageState extends State<SchedulePage> {
     );
   }
 }
-

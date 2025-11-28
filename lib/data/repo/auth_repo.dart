@@ -10,7 +10,7 @@ class AuthRepo {
   // Login returns a full UserModel
   Future<UserModel> login(String email, String password) async {
     final response = await _api.dio.post(
-      "Account/Authenticate",
+      "Account/AuthenticateUser",
       data: {
         "userName": email,
         "password": password,
@@ -21,14 +21,29 @@ class AuthRepo {
     final values = data['Data'];
 
     final user = UserModel(
-      uid: values['id'] ?? '',
-      name: values['name'] ?? '',
-      email: values['email'] ?? '',
-      role: mapUserType(values['userType']),
-      token: values['token'] ?? '',
-      refreshToken: values['refreshToken'] ?? '',
-      photo: values['photo'],
-    );
+  id: values['id'] ?? '',
+  nameEn: values['nameEn'],
+  nameAr: values['nameAr'],
+  userName: values['userName'],
+  email: values['email'] ?? '',
+  nationalId: values['nationalId'],
+  gender: values['gender'],
+  passwordHash: values['passwordHash'],
+  photo: values['photo'],
+  phoneNumber: values['phoneNumber'],
+  address: values['address'],
+  birthDate: values['birthDate'],
+  isActive: values['isActive'],
+  type: values['type'], // old: userType
+  salary: values['salary'],
+  maxLevel: values['maxLevel'],
+  traineeLevel: values['traineeLevel'],
+  qrCode: values['qrCode'],
+  academyId: values['academyId'],
+  stableId: values['stableId'],
+  token: values['token'] ?? '',
+  refreshToken: values['refreshToken'] ?? '',
+);
 
     // Save user as JSON
     await _storage.write(key: "user", value: user.toJson());
@@ -49,17 +64,17 @@ class AuthRepo {
     return UserModel.fromJson(raw);
   }
 
-  // Map backend user type
-  String mapUserType(int? type) {
-    switch (type) {
-      case 3:
-        return 'admin';
-      case 2:
-        return 'trainee';
-      case 1:
-        return 'captain';
-      default:
-        return 'unknown';
-    }
-  }
-}
+//   // Map backend user type
+//   String mapUserType(int? type) {
+//     switch (type) {
+//       case 3:
+//         return 'admin';
+//       case 2:
+//         return 'trainee';
+//       case 1:
+//         return 'captain';
+//       default:
+//         return 'unknown';
+//     }
+//   }
+ }

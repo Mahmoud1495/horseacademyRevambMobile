@@ -20,8 +20,8 @@ class ApiClient {
         onRequest: (options, handler) async {
           final userJson = await storage.read(key: "user");
           if (userJson != null) {
-            final userMap = jsonDecode(userJson);
-            final user = UserModel.fromJson(userMap);
+            // final userMap = jsonDecode(userJson);
+            final user = UserModel.fromJson(userJson);
 
             if (_isTokenExpired(user.token)) {
               final refreshedUser = await _refreshToken(user);
@@ -71,14 +71,30 @@ class ApiClient {
 
       final values = response.data['Data'];
       final refreshedUser = UserModel(
-        uid: values['id'] ?? '',
-        name: values['name'] ?? '',
-        email: values['email'] ?? '',
-        role: values['userType'] ?? 0,
-        token: values['token'] ?? '',
-        refreshToken: values['refreshToken'] ?? '',
-        photo: values['photo'],
-      );
+  id: values['id'] ?? '',
+  nameEn: values['nameEn'],
+  nameAr: values['nameAr'],
+  userName: values['userName'],
+  email: values['email'] ?? '',
+  nationalId: values['nationalId'],
+  gender: values['gender'],
+  passwordHash: values['passwordHash'],
+  photo: values['photo'],
+  phoneNumber: values['phoneNumber'],
+  address: values['address'],
+  birthDate: values['birthDate'],
+  isActive: values['isActive'],
+  type: values['type'], // old: userType
+  salary: values['salary'],
+  maxLevel: values['maxLevel'],
+  traineeLevel: values['traineeLevel'],
+  qrCode: values['qrCode'],
+  academyId: values['academyId'],
+  stableId: values['stableId'],
+  token: values['token'] ?? '',
+  refreshToken: values['refreshToken'] ?? '',
+);
+
 
       await storage.write(key: "user", value: jsonEncode(refreshedUser.toJson()));
       return refreshedUser;
