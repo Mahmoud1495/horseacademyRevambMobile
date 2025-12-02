@@ -2,12 +2,45 @@ import 'package:flutter/material.dart';
 import '../../data/repo/auth_repo.dart';
 import '../../app_router.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
   final emailC = TextEditingController();
   final passC = TextEditingController();
   final authRepo = AuthRepo();
+  String? errorMessage;
+  bool loading = false;
 
-  LoginScreen({super.key});
+  void login() async {
+    setState(() {
+      errorMessage = null;
+      loading = true;
+    });
+
+    try {
+      final user = await authRepo.login(emailC.text, passC.text);
+      if (user != null) {
+        AppRouter.goToHome(context, user);
+      } else {
+        setState(() {
+          errorMessage = "البريد الإلكتروني أو كلمة المرور غير صحيحة";
+        });
+      }
+    } catch (e) {
+      setState(() {
+        errorMessage = "حدث خطأ أثناء تسجيل الدخول. حاول مرة أخرى";
+      });
+    } finally {
+      setState(() {
+        loading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +65,7 @@ class LoginScreen extends StatelessWidget {
                       BoxShadow(
                         color: Colors.black26,
                         blurRadius: 8,
-                        offset: Offset(0, 4),
+                        offset: const Offset(0, 4),
                       ),
                     ],
                     image: const DecorationImage(
@@ -92,17 +125,26 @@ class LoginScreen extends StatelessWidget {
                             ),
                           ),
                         ),
-                        SizedBox(height: size.height * 0.04),
+                        SizedBox(height: size.height * 0.02),
+
+                        // Error message
+                        if (errorMessage != null)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: Text(
+                              errorMessage!,
+                              style: const TextStyle(
+                                color: Colors.red,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
 
                         // Login button
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
-                            onPressed: () async {
-                              final user =
-                                  await authRepo.login(emailC.text, passC.text);
-                              AppRouter.goToHome(context, user);
-                            },
+                            onPressed: loading ? null : login,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.black87,
                               padding: EdgeInsets.symmetric(
@@ -111,13 +153,17 @@ class LoginScreen extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(12),
                               ),
                             ),
-                            child: Text(
-                              "Login",
-                              style: TextStyle(
-                                fontSize: size.height * 0.022,
-                                color: Colors.white,
-                              ),
-                            ),
+                            child: loading
+                                ? const CircularProgressIndicator(
+                                    color: Colors.white,
+                                  )
+                                : Text(
+                                    "Login",
+                                    style: TextStyle(
+                                      fontSize: size.height * 0.022,
+                                      color: Colors.white,
+                                    ),
+                                  ),
                           ),
                         ),
                       ],

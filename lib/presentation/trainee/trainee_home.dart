@@ -42,11 +42,9 @@ class _TraineeHomeState extends State<TraineeHome> {
 
   @override
   Widget build(BuildContext context) {
-    return DashboardScaffold(
-      user: widget.user,
-      title: "Trainee Dashboard",
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
+    return SafeArea(
+      child: isLoading
+         ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Column(

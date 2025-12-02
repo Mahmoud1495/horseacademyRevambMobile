@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:horseacademy/presentation/trainee/trainee_tabs.dart';
 import 'presentation/admin/admin_home.dart';
-import 'presentation/trainee/trainee_home.dart';
 import 'presentation/captain/captain_home.dart';
 import '../data/models/user_model.dart';
 
@@ -19,7 +19,7 @@ class AppRouter {
       case 2:
       Navigator.pushReplacement(
     context,
-    MaterialPageRoute(builder: (_) => TraineeHome(user: user))); 
+    MaterialPageRoute(builder: (_) => TraineeTabs(user: user))); 
         //Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => TraineeHome(user: user)));
         break;
       case 1:
