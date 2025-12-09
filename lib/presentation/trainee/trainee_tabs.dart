@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:horseacademy/data/models/user_model.dart';
 import 'package:horseacademy/presentation/Shared/DashboardScaffold.dart';
+import 'package:horseacademy/presentation/Timer/timer_page.dart';
 
 import 'trainee_home.dart';
 import 'trainee_profile_page.dart';
@@ -38,6 +39,11 @@ class _TraineeTabsState extends State<TraineeTabs> {
         title: "سجل الجلسات",
         body: TraineeSessionsPage(userId: widget.user.id),
       ),
+      DashboardScaffold(
+        user: widget.user,
+        title: "Timer",
+        body: TimerPage(),
+      ),
     ];
 
     return Scaffold(
@@ -62,6 +68,10 @@ class _TraineeTabsState extends State<TraineeTabs> {
           BottomNavigationBarItem(
             icon: Icon(Icons.history),
             label: 'السجل',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.timer),
+            label: 'timer',
           ),
         ],
       ),
