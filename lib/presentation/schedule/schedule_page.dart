@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:horseacademy/core/app_config.dart';
 import 'package:horseacademy/data/models/bundle_model.dart';
 import 'package:horseacademy/data/repo/bundle_repo.dart';
-import 'package:horseacademy/presentation/schedule/booking_page.dart';
+import 'package:horseacademy/presentation/schedule/sessions_page.dart';
 
 class SchedulePage extends StatefulWidget {
   final String serviceId;
-  final String title;
+  final String title; // Assuming we need to pass the traineeId as well
 
   const SchedulePage({
     super.key,
     required this.serviceId,
-    required this.title,
+    required this.title // Add traineeId to constructor
   });
 
   @override
@@ -19,10 +19,9 @@ class SchedulePage extends StatefulWidget {
 }
 
 class _SchedulePageState extends State<SchedulePage> {
-  DateTime selectedDay = DateTime.now();
   List<Bundle> bundles = [];
   bool isLoading = true;
-
+  String? errorMessage; // Store error message to show in the UI if data fails to load
 
   @override
   void initState() {
@@ -32,15 +31,14 @@ class _SchedulePageState extends State<SchedulePage> {
 
   Future<void> _loadBundles() async {
     try {
-      final _bundleRepo = BundleRepo();
-      final list = await _bundleRepo.getTraineeBundles(widget.serviceId);
-      setState(() {
-        bundles = list;
-        isLoading = false;
-      });
-    } catch (e) {
+      final repo = BundleRepo();
+      bundles = await repo.getTraineeBundles(widget.serviceId);
       setState(() => isLoading = false);
-      // Handle error (snackbar, toast, etc.)
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+        errorMessage = "Failed to load bundles. Please try again later."; // Error handling
+      });
     }
   }
 
@@ -49,102 +47,30 @@ class _SchedulePageState extends State<SchedulePage> {
     return Scaffold(
       appBar: AppBar(title: Text(widget.title)),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : Column(
-              children: [
-                const SizedBox(height: 10),
-                _buildCalendar(),
-                const SizedBox(height: 20),
-                Expanded(
-                  child: ListView(
-                    children: bundles
-                        .map((bundle) => _buildTimeslot(bundle))
-                        .toList(),
-                  ),
-                ),
-              ],
-            ),
-    );
-  }
-
-  // --------------------------------------------------------------------------
-  // CALENDAR UI
-  // --------------------------------------------------------------------------
-  Widget _buildCalendar() {
-    return SizedBox(
-      height: 90,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: 14, // 2 weeks
-        itemBuilder: (context, i) {
-          DateTime day = DateTime.now().add(Duration(days: i));
-          bool isActive = day.day == selectedDay.day &&
-              day.month == selectedDay.month &&
-              day.year == selectedDay.year;
-
-          return GestureDetector(
-            onTap: () => setState(() => selectedDay = day),
-            child: Container(
-              width: 70,
-              margin: const EdgeInsets.symmetric(horizontal: 6),
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: isActive ? Colors.deepPurple : Colors.grey.shade200,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
-                        [day.weekday % 7],
-                    style: TextStyle(
-                        color: isActive ? Colors.white : Colors.black),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    "${day.day}",
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: isActive ? Colors.white : Colors.black,
-                      fontWeight: FontWeight.bold,
+          ? const Center(child: CircularProgressIndicator()) // Loading indicator
+          : errorMessage != null
+              ? Center(child: Text(errorMessage!)) // Error message display
+              : bundles.isEmpty
+                  ? const Center(child: Text("No bundles available"))
+                  : ListView(
+                      children: bundles.map((b) => _buildBundleCard(b)).toList(),
                     ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
     );
   }
 
-  // --------------------------------------------------------------------------
-  // TIMESLOT UI
-  // --------------------------------------------------------------------------
-  Widget _buildTimeslot(Bundle bundle) {
-    // Determine status based on remaining sessions or other logic
-    bool available = bundle.numberClasses > 0; // example condition
-    Color statusColor = available ? Colors.green : Colors.red;
-    String statusText = available ? "Available" : "Closed";
-
+  Widget _buildBundleCard(Bundle bundle) {
     return InkWell(
-      onTap: available
-          ? () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => BookingPage(
-                    serviceId: bundle.id,
-                    coach: "N/A", // replace if you have coach info
-                    time: "${bundle.bundleDuration} days",
-                    price: bundle.bundlePrice,
-                    image: bundle.photo,
-                  ),
-                ),
-              );
-            }
-          : null,
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => SessionsPage(
+              bundleId: bundle.id, // Pass the bundleId
+              numberClasses: bundle.numberClasses
+            ),
+          ),
+        );
+      },
       child: Card(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: ListTile(
@@ -153,21 +79,10 @@ class _SchedulePageState extends State<SchedulePage> {
             radius: 28,
           ),
           title: Text(bundle.name),
-          subtitle: Text("Classes: ${bundle.numberClasses}"),
-          trailing: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: statusColor.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              statusText,
-              style: TextStyle(
-                color: statusColor,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+          subtitle: Text(
+            "Classes: ${bundle.numberClasses}\nDuration: ${bundle.bundleDuration} days",
           ),
+          trailing: const Icon(Icons.arrow_forward_ios),
         ),
       ),
     );

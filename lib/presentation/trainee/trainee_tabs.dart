@@ -34,11 +34,11 @@ class _TraineeTabsState extends State<TraineeTabs> {
         body: TraineeHome(user: widget.user),
       ),
 
-      DashboardScaffold(
-        user: widget.user,
-        title: "سجل الجلسات",
-        body: TraineeSessionsPage(userId: widget.user.id),
-      ),
+      // DashboardScaffold(
+      //   user: widget.user,
+      //   title: "سجل الجلسات",
+      //   body: TraineeSessionsPage(userId: widget.user.id),
+      // ),
       DashboardScaffold(
         user: widget.user,
         title: "Timer",
